@@ -102,3 +102,9 @@ By participating to this project, please uphold to our [Code of Conduct](https:/
 ## License
 
 Use under the terms of the [bpmn.io license](http://bpmn.io/license).
+
+
+## Util
+install npm http-server and run
+`http-server` 
+inside the dmn-js directory
