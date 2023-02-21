@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>dmn-js dmn++ modeler</title>
+
+  <link rel="stylesheet" href="../packages/dmn-js/dist/assets/diagram-js.css">
+  <link rel="stylesheet" href="../packages/dmn-js/dist/assets/dmn-js-shared.css">
+  <link rel="stylesheet" href="../packages/dmn-js/dist/assets/dmn-js-drd.css">
+  <link rel="stylesheet" href="../packages/dmn-js/dist/assets/dmn-js-decision-table.css">
+  <link rel="stylesheet" href="../packages/dmn-js/dist/assets/dmn-js-decision-table-controls.css">
+  <link rel="stylesheet" href="../packages/dmn-js/dist/assets/dmn-js-literal-expression.css">
+  <link rel="stylesheet" href="../packages/dmn-js/dist/assets/dmn-font/css/dmn.css">
+
+  <!-- modeler distro -->
+  <script src="../packages/dmn-js/dist/dmn-modeler.development.js">console.log('dmn-modeler.development.js')</script>
+
+  <!-- needed for this example only -->
+  <script src="https://unpkg.com/jquery@3.3.1/dist/jquery.js"></script>
+
+  <!-- example styles -->
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    #save-button {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: white;
+      padding: 5px;
+      border: solid 1px #CCC;
+      border-radius: 2px;
+      padding: 8px;
+      font-family: 'Arial', sans-serif;
+      font-weight: bold;
+      cursor: default;
+      font-size: 14px;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+<div class="test-container">
+  <div class="editor-parent">
+    <div class="editor-container"></div>
+    <div class="editor-tabs"></div>
+  </div>
+</div>
+
+<button id="save-button">print to console</button>
+
+<script>
+  // import DmnJS from '../packages/dmn-js/dist/dmn-modeler.development.js'
+
+  const diagramUrl = 'https://cdn.staticaly.com/gh/bpmn-io/dmn-js-examples/a71e16/starter/diagram.dmn';
+
+  const CLASS_NAMES = {
+    drd: 'dmn-icon-lasso-tool',
+    decisionTable: 'dmn-icon-decision-table',
+    literalExpression: 'dmn-icon-literal-expression'
+  };
+
+  const $container = $('.editor-container');
+  const $tabs = $('.editor-tabs');
+
+  // modeler instance
+  const dmnModeler = new DmnJS({
+    container: $container,
+    height: 500,
+    width: '100%',
+    keyboard: {
+      bindTo: window
+    }
+  });
+
+  $tabs.delegate('.tab', 'click', async function(e) {
+
+    // get index of view from clicked tab
+    const viewIdx = parseInt(this.getAttribute('data-id'), 10);
+
+    // get view using index
+    const view = dmnModeler.getViews()[viewIdx];
+
+    // open view
+    try {
+      await dmnModeler.open(view);
+    } catch (err) {
+      console.error('error opening tab', err);
+    }
+  });
+
+  dmnModeler.on('views.changed', function(event) {
+
+    // get views from event
+    const { views, activeView } = event;
+
+    // clear tabs
+    $tabs.empty();
+
+    // create a new tab for each view
+    views.forEach(function(v, idx) {
+
+      const className = CLASS_NAMES[v.type];
+
+      const tab = $(`
+            <div class="tab ${ v === activeView ? 'active' : ''}" data-id="${idx}">
+              <span class="${ className }"></span>
+              ${v.element.name || v.element.id}
+            </div>
+          `);
+
+      $tabs.append(tab);
+    });
+  });
+
+  /**
+   * Save diagram contents and print them to the console.
+   */
+  async function exportDiagram() {
+    try {
+      const { xml } = await dmnModeler.saveXML({ format: true });
+
+      alert('Diagram exported. Check the developer tools!');
+
+      console.log('DIAGRAM', xml);
+    } catch (err) {
+      console.error('could not save DMN 1.3 diagram', err);
+    }
+  }
+
+  /**
+   * Open diagram in our modeler instance.
+   *
+   * @param {String} dmnXML diagram to display
+   */
+  async function openDiagram(dmnXML) {
+
+    // import diagram
+    try {
+      const { warnings } = await dmnModeler.importXML(dmnXML);
+
+      if (warnings.length) {
+        console.log('import with warnings', warnings);
+      } else {
+        console.log('import successful');
+      }
+
+      // access active editor components
+      const activeEditor = dmnModeler.getActiveViewer();
+
+      const canvas = activeEditor.get('canvas');
+
+      // zoom to fit full viewport
+      canvas.zoom('fit-viewport');
+
+    } catch (err) {
+      console.error('could not import DMN 1.3 diagram', err);
+    }
+  }
+
+
+  // load external diagram file via AJAX and open it
+  $.get(diagramUrl, openDiagram, 'text');
+
+  // wire save button
+  $('#save-button').click(exportDiagram);
+</script>
+</body>
+</html>
