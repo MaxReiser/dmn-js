@@ -18,9 +18,6 @@
   <!-- needed for this example only -->
   <script src="https://unpkg.com/jquery@3.3.1/dist/jquery.js"></script>
 
-  <!-- example styles -->
-  <link rel="stylesheet" href="style.css">
-
   <style>
     #save-button {
       position: absolute;
@@ -47,7 +44,9 @@
   </div>
 </div>
 
-<button id="save-button">print to console</button>
+<button id="save-button" href="#" onclick="exportDiagram()" download="file.dmn">Download DMN File</button>
+
+<!--<button id="save-button1">print to console</button>-->
 
 <script>
   // import DmnJS from '../packages/dmn-js/dist/dmn-modeler.development.js'
@@ -119,8 +118,19 @@
   async function exportDiagram() {
     try {
       const { xml } = await dmnModeler.saveXML({ format: true });
+      var blob = new Blob([xml], {type: 'text/plain'});
+      var filename = 'diagram.dmn'
+      var pom = document.createElement('a');
+      pom.setAttribute('href', window.URL.createObjectURL(blob));
+      pom.setAttribute('download', filename);
 
-      alert('Diagram exported. Check the developer tools!');
+      pom.dataset.downloadurl = ['text/plain', pom.download, pom.href].join(':');
+      pom.draggable = true;
+      pom.classList.add('dragout');
+
+      pom.click();
+      //document.open('data:Application/octet-stream,' + encodeURIComponent(xml))
+      console.log('Diagram export');
 
       console.log('DIAGRAM', xml);
     } catch (err) {
@@ -163,7 +173,7 @@
   $.get(diagramUrl, openDiagram, 'text');
 
   // wire save button
-  $('#save-button').click(exportDiagram);
+  $('#save-button1').click(exportDiagram);
 </script>
 </body>
 </html>
