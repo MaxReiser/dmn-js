@@ -17,6 +17,7 @@
 
   <!-- needed for this example only -->
   <script src="https://unpkg.com/jquery@3.3.1/dist/jquery.js"></script>
+  <script src="https://unpkg.com/codeflask/build/codeflask.min.js"></script>
 
   <style>
     #save-button {
@@ -34,6 +35,37 @@
       font-size: 14px;
       color: #444;
     }
+    #dl-button {
+      position: absolute;
+      bottom: 10px;
+      left: 200px;
+      background: white;
+      padding: 5px;
+      border: solid 1px #CCC;
+      border-radius: 2px;
+      padding: 8px;
+      font-family: 'Arial', sans-serif;
+      font-weight: bold;
+      cursor: default;
+      font-size: 14px;
+      color: #444;
+    }
+    #edit-button {
+      position: absolute;
+      bottom: 50px;
+      left: 10px;
+      background: white;
+      padding: 5px;
+      border: solid 1px #CCC;
+      border-radius: 2px;
+      padding: 8px;
+      font-family: 'Arial', sans-serif;
+      font-weight: bold;
+      cursor: default;
+      font-size: 14px;
+      color: #444;
+    }
+
   </style>
 </head>
 <body>
@@ -43,16 +75,15 @@
     <div class="editor-tabs"></div>
   </div>
 </div>
-
-<button id="save-button" href="#" onclick="exportDiagram()" download="file.dmn">Download DMN File</button>
-
-<!--<button id="save-button1">print to console</button>-->
-
+<div>
+  <button id="save-button" href="#">Download DMN File</button>
+  <button id="edit-button", href="#">XML</button>
+  <form id="dl-button" href="#">Upload DMN file <input type="file" id="newDmn" accept=".dmn"></form>
+</div>
 <script>
-  // import DmnJS from '../packages/dmn-js/dist/dmn-modeler.development.js'
 
-  const diagramUrl = 'https://cdn.staticaly.com/gh/bpmn-io/dmn-js-examples/a71e16/starter/diagram.dmn';
 
+  const diagramUrl = './demo.dmn';
   const CLASS_NAMES = {
     drd: 'dmn-icon-lasso-tool',
     decisionTable: 'dmn-icon-decision-table',
@@ -112,15 +143,63 @@
     });
   });
 
+/**
+ * function that creates an editable textarea with the xml of the diagram
+ * if save button is clicked the xml is fed back into the dmnModeler and the textarea is removed
+ *
+ */
+  async function editXML() {
+    const { xml } = await dmnModeler.saveXML({ format: true });
+    let $textarea = $('<textarea/>', {
+      id: 'xml-textarea',
+      css: {
+        width: '100%',
+        height: 600
+      },
+      val: xml
+    });
+
+    $container.append($textarea);
+    $('#edit-button').text('Save');
+    $('#edit-button').off('click');
+    $('#edit-button').on('click', async function() {
+      let editedXml = $('#xml-textarea').val();
+      console.log(editedXml == xml)
+      console.log(editedXml)
+
+      try {
+        //load the edited xml into the modeler
+        const { warnings } = await dmnModeler.importXML(editedXml);
+        if (warnings.length) {
+          console.log('import with warnings', warnings);
+        } else {
+          console.log('import successful');
+        }
+
+        const activeEditor = dmnModeler.getActiveViewer();
+        const canvas = activeEditor.get('canvas');
+        canvas.zoom('fit-viewport');
+        console.log('XML imported');
+        $textarea.remove()
+      } catch(err) {
+        console.error('could not import XML', err);
+      }
+
+      $('#edit-button').text('XML');
+      $('#edit-button').off('click');
+      $('#edit-button').on('click', editXML);
+  });
+  }
+
   /**
-   * Save diagram contents and print them to the console.
+   * Save diagram contents to local download folder.
    */
   async function exportDiagram() {
     try {
       const { xml } = await dmnModeler.saveXML({ format: true });
-      var blob = new Blob([xml], {type: 'text/plain'});
-      var filename = 'diagram.dmn'
-      var pom = document.createElement('a');
+      let blob = new Blob([xml], {type: 'text/plain'});
+      let filename = 'diagram.dmn'
+      let pom = document.createElement('a');
       pom.setAttribute('href', window.URL.createObjectURL(blob));
       pom.setAttribute('download', filename);
 
@@ -129,10 +208,7 @@
       pom.classList.add('dragout');
 
       pom.click();
-      //document.open('data:Application/octet-stream,' + encodeURIComponent(xml))
       console.log('Diagram export');
-
-      console.log('DIAGRAM', xml);
     } catch (err) {
       console.error('could not save DMN 1.3 diagram', err);
     }
@@ -168,12 +244,48 @@
     }
   }
 
+  async function openNewDiagram() {
+    const fileInput = document.getElementById('newDmn');
+
+    try {
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.readAsText(file);
+
+      reader.onload = async (event) => {
+        const xmlDmn = event.target.result;
+
+        const { warnings } = await dmnModeler.importXML(xmlDmn);
+
+        if (warnings.length) {
+          console.log('import with warnings', warnings);
+        } else {
+          console.log('import successful');
+        }
+
+        const activeEditor = dmnModeler.getActiveViewer();
+        const canvas = activeEditor.get('canvas');
+        canvas.zoom('fit-viewport');
+      };
+
+    } catch (err) {
+      console.error('could not read DMN file', err);
+    }
+  }
+
 
   // load external diagram file via AJAX and open it
   $.get(diagramUrl, openDiagram, 'text');
 
   // wire save button
-  $('#save-button1').click(exportDiagram);
+  $('#save-button').click(exportDiagram);
+
+  //wire edit button
+  $('#edit-button').click(editXML);
+
+  //wire dl-button
+  $('#dl-button').click(openNewDiagram);
 </script>
 </body>
 </html>
