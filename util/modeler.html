@@ -17,13 +17,12 @@
 
   <!-- needed for this example only -->
   <script src="https://unpkg.com/jquery@3.3.1/dist/jquery.js"></script>
-  <script src="https://unpkg.com/codeflask/build/codeflask.min.js"></script>
 
   <style>
     #save-button {
       position: absolute;
-      bottom: 10px;
-      left: 10px;
+      bottom: 50px;
+      left: 100px;
       background: white;
       padding: 5px;
       border: solid 1px #CCC;
@@ -37,8 +36,8 @@
     }
     #dl-button {
       position: absolute;
-      bottom: 10px;
-      left: 200px;
+      bottom: 50px;
+      left: 600px;
       background: white;
       padding: 5px;
       border: solid 1px #CCC;
@@ -53,7 +52,7 @@
     #edit-button {
       position: absolute;
       bottom: 50px;
-      left: 10px;
+      left: 50px;
       background: white;
       padding: 5px;
       border: solid 1px #CCC;
@@ -65,20 +64,37 @@
       font-size: 14px;
       color: #444;
     }
+    #xml-editor {
+      position: relative;
+      width: 100%;
+      height: 200px;
+      border: 2px solid #ccc;
+    }
+    #buttons {
+      border: solid 1px brown;
+      border-radius: 2px;
+    }
+
 
   </style>
 </head>
 <body>
+<script src="https://unpkg.com/codeflask@1.4.1/build/codeflask.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/codeflask/build/codeflask.css">
+
 <div class="test-container">
   <div class="editor-parent">
+    <!--<div id="xml-editor"></div>-->
     <div class="editor-container"></div>
     <div class="editor-tabs"></div>
   </div>
 </div>
-<div>
+<div id="buttons">
   <button id="save-button" href="#">Download DMN File</button>
   <button id="edit-button", href="#">XML</button>
-  <form id="dl-button" href="#">Upload DMN file <input type="file" id="newDmn" accept=".dmn"></form>
+  <form id="dl-button" href="#">Upload DMN file
+    <input type="file" id="newDmn" accept=".dmn">
+  </form>
 </div>
 <script>
 
@@ -92,6 +108,7 @@
 
   const $container = $('.editor-container');
   const $tabs = $('.editor-tabs');
+  console.log($tabs, $container)
 
   // modeler instance
   const dmnModeler = new DmnJS({
@@ -146,27 +163,41 @@
 /**
  * function that creates an editable textarea with the xml of the diagram
  * if save button is clicked the xml is fed back into the dmnModeler and the textarea is removed
- *
  */
-  async function editXML() {
-    const { xml } = await dmnModeler.saveXML({ format: true });
-    let $textarea = $('<textarea/>', {
-      id: 'xml-textarea',
+  async function _editXML() {
+    let $xmleditor = $('<div/>', {
+      id: 'xml-editor',
+      class: 'xml-editor',
       css: {
-        width: '100%',
-        height: 600
-      },
-      val: xml
+        width: 1000,
+        height: 350,
+        border: 2,
+      }
+    });
+    $container.append($xmleditor);
+    const { xml } = await dmnModeler.saveXML({ format: true });
+    const flask = new CodeFlask('#xml-editor', { language: 'xml', lineNumbers: true });
+    let editedXml = xml;
+    flask.updateCode(editedXml);
+
+    $('#save-button').text('Discard');
+    $('#save-button').off('click');
+    $('#save-button').on('click', async function() {
+      $('#edit-button').text('XML');
+      $('#edit-button').off('click');
+      $('#edit-button').on('click', _editXML);
+
+      $('#save-button').text('Download DMN File');
+      $('#save-button').off('click');
+      $('#save-button').on('click', exportDiagram);
+      $('#xml-editor').remove()
+      return
     });
 
-    $container.append($textarea);
     $('#edit-button').text('Save');
     $('#edit-button').off('click');
     $('#edit-button').on('click', async function() {
-      let editedXml = $('#xml-textarea').val();
-      console.log(editedXml == xml)
-      console.log(editedXml)
-
+      editedXml = flask.getCode();
       try {
         //load the edited xml into the modeler
         const { warnings } = await dmnModeler.importXML(editedXml);
@@ -175,20 +206,21 @@
         } else {
           console.log('import successful');
         }
-
         const activeEditor = dmnModeler.getActiveViewer();
         const canvas = activeEditor.get('canvas');
         canvas.zoom('fit-viewport');
-        console.log('XML imported');
-        $textarea.remove()
+        $('#xml-editor').remove()
       } catch(err) {
         console.error('could not import XML', err);
       }
 
       $('#edit-button').text('XML');
       $('#edit-button').off('click');
-      $('#edit-button').on('click', editXML);
-  });
+      $('#edit-button').on('click', _editXML);
+      $('#save-button').text('Download DMN File');
+      $('#save-button').off('click');
+      $('#save-button').on('click', exportDiagram);
+    });
   }
 
   /**
@@ -282,7 +314,7 @@
   $('#save-button').click(exportDiagram);
 
   //wire edit button
-  $('#edit-button').click(editXML);
+  $('#edit-button').click(_editXML);
 
   //wire dl-button
   $('#dl-button').click(openNewDiagram);
