@@ -42,7 +42,18 @@ export default class Viewer extends Manager {
             is(element.decisionLogic, 'dmn:LiteralExpression')
           );
         }
-      }
+      },
+        // TODO add BKM entry
+      /*{
+        id: 'BusinessKnowledgeModel',
+        constructor: BKMViewer,
+        opens(element) {
+          return (
+            is(element, 'dmn:BusinessKnowledgeModel') &&
+            is(element.decisionLogic, 'dmn:BusinessKnowledgeModel')
+          );
+        }
+      }*/
     ];
 
   }
