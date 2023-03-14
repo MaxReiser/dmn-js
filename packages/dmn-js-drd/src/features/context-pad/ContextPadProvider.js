@@ -193,7 +193,6 @@ ContextPadProvider.prototype.getContextPadEntries = function(element) {
       )
     });
   }
-
   if (isAny(businessObject, [
     'dmn:BusinessKnowledgeModel',
     'dmn:Decision'

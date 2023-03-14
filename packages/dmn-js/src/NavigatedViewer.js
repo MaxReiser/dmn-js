@@ -43,6 +43,7 @@ export default class Viewer extends Manager {
           );
         }
       }
+      // TODO: add business knowledge model viewer
     ];
 
   }

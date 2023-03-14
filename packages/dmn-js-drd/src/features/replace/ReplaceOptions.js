@@ -1,4 +1,16 @@
 export default {
+  BKM: [
+    {
+      label: 'add BKM logic to XML',
+      actionName: 'copy-BKM-logic-to-xml',
+      className: 'dmn-icon-paste',
+      target: {
+        type: 'dmn:BusinessKnowledgeModel',
+        table: false,
+        expression: false,
+      }
+    }
+  ],
   DECISION: [
     {
       label: 'Empty',

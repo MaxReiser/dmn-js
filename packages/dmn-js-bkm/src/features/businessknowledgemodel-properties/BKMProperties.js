@@ -8,4 +8,4 @@ export default class BKMProperties {
   }
 }
 
-DecisionProperties.$inject = [ 'components' ];
+BKMProperties.$inject = [ 'components' ];

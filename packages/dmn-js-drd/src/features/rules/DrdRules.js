@@ -79,7 +79,7 @@ DrdRules.prototype.canCreate = canCreate;
 
 DrdRules.prototype.canMove = canMove;
 
-
+//TODO add connection rules for BKM (conflict resolution) & specialization requirement
 function canConnect(source, target) {
   if (!source || isLabel(source) || !target || isLabel(target)) {
     return null;

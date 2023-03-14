@@ -3,7 +3,7 @@ import { Component } from 'inferno';
 import EditableComponent from 'dmn-js-shared/lib/components/EditableComponent';
 
 
-export default class DecisionPropertiesEditorComponent extends Component {
+export default class BKMPropertiesEditorComponent extends Component {
 
   constructor(props, context) {
     super(props, context);

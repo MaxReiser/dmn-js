@@ -43,6 +43,7 @@ export default class Modeler extends EditingManager {
           );
         }
       }
+      // TODO: add business knowledge model editor
     ];
 
   }

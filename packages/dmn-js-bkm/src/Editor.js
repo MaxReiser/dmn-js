@@ -24,9 +24,6 @@ export default class Editor extends Viewer {
     return [
       BKMPropertiesEditorModule,
       KeyboardModule,
-      ModelingModule,
-      ExpressionLanguagesModule,
-      DataTypesModule,
       TextareaEditorComponent
     ];
   }

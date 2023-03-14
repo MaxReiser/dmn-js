@@ -11,7 +11,7 @@ export default class BKMPropertiesComponent extends Component {
   render() {
 
     // there is only one single element
-    const { name } = this._viewer.getDecision();
+    const { name } = this._viewer.getBKM();
 
     return (
       <div className="bkm-properties">

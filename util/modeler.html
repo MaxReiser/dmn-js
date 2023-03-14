@@ -33,6 +33,8 @@
       cursor: default;
       font-size: 14px;
       color: #444;
+      margin-top: 20px;
+      margin-outside: 20px;
     }
     #dl-button {
       position: absolute;
@@ -48,6 +50,7 @@
       cursor: default;
       font-size: 14px;
       color: #444;
+      margin-outside: 20px;
     }
     #edit-button {
       position: absolute;
@@ -63,6 +66,7 @@
       cursor: default;
       font-size: 14px;
       color: #444;
+      margin-outside: 20px;
     }
     #xml-editor {
       position: relative;
@@ -71,8 +75,9 @@
       border: 2px solid #ccc;
     }
     #buttons {
-      border: solid 1px brown;
+      position: relative;
       border-radius: 2px;
+      margin-top: 5%;
     }
 
 
@@ -103,18 +108,21 @@
   const CLASS_NAMES = {
     drd: 'dmn-icon-lasso-tool',
     decisionTable: 'dmn-icon-decision-table',
-    literalExpression: 'dmn-icon-literal-expression'
+    literalExpression: 'dmn-icon-literal-expression',
+    businessKnowledgeModel: 'dmn-icon-business-knowledge-model', // add BMK to tab view
   };
 
   const $container = $('.editor-container');
   const $tabs = $('.editor-tabs');
-  console.log($tabs, $container)
 
   // modeler instance
   const dmnModeler = new DmnJS({
     container: $container,
     height: 500,
     width: '100%',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: '#ccc',
     keyboard: {
       bindTo: window
     }
@@ -137,25 +145,19 @@
   });
 
   dmnModeler.on('views.changed', function(event) {
-
     // get views from event
     const { views, activeView } = event;
-
     // clear tabs
     $tabs.empty();
-
     // create a new tab for each view
     views.forEach(function(v, idx) {
-
       const className = CLASS_NAMES[v.type];
-
       const tab = $(`
             <div class="tab ${ v === activeView ? 'active' : ''}" data-id="${idx}">
               <span class="${ className }"></span>
               ${v.element.name || v.element.id}
             </div>
           `);
-
       $tabs.append(tab);
     });
   });
@@ -164,28 +166,78 @@
  * function that creates an editable textarea with the xml of the diagram
  * if save button is clicked the xml is fed back into the dmnModeler and the textarea is removed
  */
-  async function _editXML() {
+  async function editXML() {
     let $xmleditor = $('<div/>', {
       id: 'xml-editor',
       class: 'xml-editor',
+      href: '#',
       css: {
-        width: 1000,
+        width: '100%',
         height: 350,
         border: 2,
+        marginOutside: 20,
+        marginBottom: 20,
+        borderStyle: 'solid',
+        borderWidth: '1px',
+        borderColor: '#ccc',
       }
     });
-    $container.append($xmleditor);
+    $tabs.append($xmleditor);
     const { xml } = await dmnModeler.saveXML({ format: true });
     const flask = new CodeFlask('#xml-editor', { language: 'xml', lineNumbers: true });
     let editedXml = xml;
     flask.updateCode(editedXml);
+    //add button to change to fullscreen mode and back
+    let $fullscreen = $('<button/>', {
+      id: 'fullscreen-button',
+      class: 'buttons',
+      href: '#',
+      text: 'Fullscreen',
+        css: {
+            position: 'relative',
+            bottom: 50,
+            left: 400,
+            background: 'white',
+            padding: 5,
+            border: 'solid 1px #CCC',
+            borderRadius: 2,
+            padding: 8,
+            fontFamily: 'Arial',
+            fontWeight: 'bold',
+            cursor: 'default',
+            fontSize: 14,
+            color: '#444',
+            marginOutside: 20,
+        }
+    });
+    /*
+    $('#buttons').append($fullscreen);
+    $fullscreen.on('click', function() {
+        // set xml-editor to fullscreen
+        $fullscreen.text('Exit Fullscreen');
+        $xmleditor.requestFullscreen();
+        //$xmleditor.css('width', '100%');
+        //$xmleditor.css('height', '100%');
+        //exit fullscreen and resore dmnmodeler drd view
+        $fullscreen.on('click', function() {
+          // remove $fullscreen button
+          $xmleditor.exitFullscreen()
+          $xmleditor.css('width', '100%');
+          $xmleditor.css('height', '350');
+          $fullscreen.remove();
+        });
+
+    });
+
+     */
+
 
     $('#save-button').text('Discard');
     $('#save-button').off('click');
     $('#save-button').on('click', async function() {
       $('#edit-button').text('XML');
       $('#edit-button').off('click');
-      $('#edit-button').on('click', _editXML);
+      $('#edit-button').on('click', editXML);
 
       $('#save-button').text('Download DMN File');
       $('#save-button').off('click');
@@ -216,7 +268,7 @@
 
       $('#edit-button').text('XML');
       $('#edit-button').off('click');
-      $('#edit-button').on('click', _editXML);
+      $('#edit-button').on('click', editXML);
       $('#save-button').text('Download DMN File');
       $('#save-button').off('click');
       $('#save-button').on('click', exportDiagram);
@@ -230,10 +282,17 @@
     try {
       const { xml } = await dmnModeler.saveXML({ format: true });
       let blob = new Blob([xml], {type: 'text/plain'});
-      let filename = 'diagram.dmn'
+      let filename = 'diagram'
+      let type = 'dmn'
+      let input = prompt('Filename:', filename)
+      if (input === null) {
+        return
+      } else {
+        filename = input
+      }
       let pom = document.createElement('a');
       pom.setAttribute('href', window.URL.createObjectURL(blob));
-      pom.setAttribute('download', filename);
+      pom.setAttribute('download', filename.concat('.dmn'));
 
       pom.dataset.downloadurl = ['text/plain', pom.download, pom.href].join(':');
       pom.draggable = true;
@@ -314,7 +373,7 @@
   $('#save-button').click(exportDiagram);
 
   //wire edit button
-  $('#edit-button').click(_editXML);
+  $('#edit-button').click(editXML);
 
   //wire dl-button
   $('#dl-button').click(openNewDiagram);
