@@ -135,7 +135,19 @@ export default function DrdRenderer(
 
   function createMarker(id, type, fill, stroke) {
 
-    if (type === 'association-start') {
+    if(type === 'specialization-requirement-end'){
+      var specializationRequirementEnd = svgCreate('path');
+      svgAttr(specializationRequirementEnd, { d: 'M 11 5 L 11 10 L 1 15 Z' }); // TODO add a new marker & check attributes
+      addMarker(id, {
+        element: specializationRequirementEnd,
+        attrs: {
+          fill: stroke,
+          stroke: 'none'
+        },
+        ref: { x: 11, y: 10 },
+        scale: 1
+      });
+    } else if (type === 'association-start') {
       var associationStart = svgCreate('path');
       svgAttr(associationStart, { d: 'M 11 5 L 1 10 L 11 15' });
 
@@ -451,6 +463,22 @@ export default function DrdRenderer(
           };
 
       return drawLine(p, element.waypoints, attrs);
+    },
+    //TODO rederer for SpecializationRequirement
+    'dmn:SpecializationRequirement': function(p, element) {
+
+      var fill = getFillColor(element, 'red'),
+          stroke = getStrokeColor(element, 'red'),
+          attrs = {
+            stroke: stroke,
+            strokeWidth: 3,
+            strokeDasharray: 5,
+            strokeLinecap: 'round',
+            strokeLinejoin: 'round',
+            markerEnd: marker('specialization-requirement-end', fill, stroke)
+          };
+      console.log('DrdRenderer: SpecializationRequirement', element);
+      return drawLine(p, element.waypoints, attrs);
     }
   };
 
@@ -496,7 +524,8 @@ export default function DrdRenderer(
     return is(element, 'dmn:DMNElement') ||
            is(element, 'dmn:InformationRequirement') ||
            is(element, 'dmn:KnowledgeRequirement') ||
-           is(element, 'dmn:AuthorityRequirement');
+           is(element, 'dmn:AuthorityRequirement')||
+           is(element, 'dmn:SpecializationRequirement');
   };
 
   this.drawShape = drawShape;

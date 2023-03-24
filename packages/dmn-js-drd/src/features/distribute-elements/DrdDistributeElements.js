@@ -20,6 +20,7 @@ export default function DrdDistributeElements(distributeElements) {
         'dmn:AuthorityRequirement',
         'dmn:InformationRequirement',
         'dmn:KnowledgeRequirement',
+        'dmn:SpecializationRequirement',
         'dmn:Association',
         'dmn:TextAnnotation'
       ]);

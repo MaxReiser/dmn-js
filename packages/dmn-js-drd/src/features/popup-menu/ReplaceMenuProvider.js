@@ -8,7 +8,7 @@ import {
 } from 'min-dash';
 
 import replaceOptions from '../replace/ReplaceOptions';
-var i = 0;
+let i = 0;
 
 /**
  * This module is an element agnostic replace menu provider for the popup menu.
@@ -77,7 +77,7 @@ ReplaceMenuProvider.prototype.getEntries = function(element) {
         option.actionName === 'replace-with-literal-expression' &&
         !is(businessObject.decisionLogic, 'dmn:LiteralExpression')
       );
-
+      console.log('ReplaceMenu for Decision:');
       return notEmpty || notTable || notExp;
     });
 
@@ -88,9 +88,9 @@ ReplaceMenuProvider.prototype.getEntries = function(element) {
   if (is(businessObject, 'dmn:BusinessKnowledgeModel')) {
     var options = filter(replaceOptions.BKM,  async function(option) {
       var BKM = option.actionName === 'copy-BKM-logic-to-xml' && businessObject
-      const { xml } =  await dmnModeler.saveXML({ format: true });
-      console.log('ReplaceMenu:' + i++)
-      console.log(xml)
+      businessObject.name = businessObject.id
+      console.log('ReplaceMenu for BKM:' + i++)
+      console.log(businessObject.id)
       return BKM
     });
 

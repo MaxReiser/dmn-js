@@ -102,6 +102,12 @@ describe('features/rules', function() {
       { type: 'dmn:InformationRequirement' }
     ));
 
+    it('decision -> decision', expectCanConnect(
+        'Decision_1',
+        'Decision_2',
+        { type: 'dmn:SpecializationRequirement' }
+    ));
+
 
     it('decision -> input data', expectCanConnect(
       'Decision_1',

@@ -173,7 +173,55 @@ ContextPadProvider.prototype.getContextPadEntries = function(element) {
     };
   }
 
+  function inheritDecision(type, className, title, options) {
+
+    if (typeof title !== 'string') {
+      options = title;
+      title = translate('Inherit from {type}', { type: type.replace(/^dmn:/, '') });
+    }
+
+    function inheritStart(event, element) {
+
+      var shape = elementFactory.createShape(assign({ type: type }, options));
+
+      create.start(event, shape, {
+        source: element,
+        hints: {
+          connectionTarget: element
+        }
+      });
+    }
+
+    var append = autoPlace ? function(event, element) {
+      var shape = elementFactory.createShape(assign({ type: type }, options));
+
+      autoPlace.append(element, shape, {
+        connectionTarget: element
+      });
+    } : inheritStart;
+
+    return {
+      group: 'model',
+      className: className,
+      title: title,
+      action: {
+        dragstart: inheritStart,
+        click: append
+      }
+    };
+  }
+
+  //TODO create option to connect decision elements to each other with specialization requirement
   if (is(businessObject, 'dmn:Decision')) {
+    console.log("inherit from Decision", businessObject)
+    console.log(actions)
+    assign(actions, {
+      'inherit.decision': inheritDecision('dmn:Decision', 'dmn-icon-trash')
+    });
+  }
+
+  if (is(businessObject, 'dmn:Decision')) {
+    console.log('append Decision', businessObject)
     assign(actions, {
       'append.decision': appendAction('dmn:Decision', 'dmn-icon-decision')
     });

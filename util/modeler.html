@@ -20,11 +20,10 @@
 
   <style>
     #save-button {
-      position: absolute;
+      width: 31%;
       bottom: 50px;
       left: 100px;
-      background: white;
-      padding: 5px;
+      background: cadetblue;
       border: solid 1px #CCC;
       border-radius: 2px;
       padding: 8px;
@@ -33,14 +32,13 @@
       cursor: default;
       font-size: 14px;
       color: #444;
-      margin-top: 20px;
       margin-outside: 20px;
     }
     #dl-button {
-      position: absolute;
+      width: 60%;
       bottom: 50px;
       left: 600px;
-      background: white;
+      background: cadetblue;
       padding: 5px;
       border: solid 1px #CCC;
       border-radius: 2px;
@@ -53,11 +51,10 @@
       margin-outside: 20px;
     }
     #edit-button {
-      position: absolute;
+      width: 31%;
       bottom: 50px;
       left: 50px;
-      background: white;
-      padding: 5px;
+      background: cadetblue;
       border: solid 1px #CCC;
       border-radius: 2px;
       padding: 8px;
@@ -75,7 +72,7 @@
       border: 2px solid #ccc;
     }
     #buttons {
-      position: relative;
+      width: 50%;
       border-radius: 2px;
       margin-top: 5%;
     }
@@ -85,7 +82,6 @@
 </head>
 <body>
 <script src="https://unpkg.com/codeflask@1.4.1/build/codeflask.min.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/codeflask/build/codeflask.css">
 
 <div class="test-container">
   <div class="editor-parent">
@@ -118,6 +114,7 @@
   // modeler instance
   const dmnModeler = new DmnJS({
     container: $container,
+    position: 'relative',
     height: 500,
     width: '100%',
     borderStyle: 'solid',
@@ -173,7 +170,7 @@
       href: '#',
       css: {
         width: '100%',
-        height: 350,
+        height: 500,
         border: 2,
         marginOutside: 20,
         marginBottom: 20,
@@ -184,13 +181,12 @@
     });
     $tabs.append($xmleditor);
     const { xml } = await dmnModeler.saveXML({ format: true });
-    const flask = new CodeFlask('#xml-editor', { language: 'xml', lineNumbers: true });
+    const flask = new CodeFlask('#xml-editor', { language: 'xml', lineNumbers: true , tabSize: 5});
     let editedXml = xml;
     flask.updateCode(editedXml);
-    //add button to change to fullscreen mode and back
     let $fullscreen = $('<button/>', {
       id: 'fullscreen-button',
-      class: 'buttons',
+      class: 'button',
       href: '#',
       text: 'Fullscreen',
         css: {

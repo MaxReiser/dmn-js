@@ -102,6 +102,11 @@ function canConnect(source, target) {
     if (is(target, 'dmn:Decision')) {
       return { type: 'dmn:InformationRequirement' };
     }
+    /* TODO differentiate between InformationRequirement and SpecializationRequirement
+    if (is(target, 'dmn:Decision')) {
+      return { type: 'dmn:SpecializationRequirement' };
+    }
+  */
 
     if (is(target, 'dmn:KnowledgeSource')) {
       return { type: 'dmn:AuthorityRequirement' };

@@ -208,6 +208,7 @@ describe('features - context-pad', function() {
     it('should provide entries for Decision', inject(function() {
 
       expectContextPadEntries('guestCount', [
+        'inherit.decision', //TODO inherit
         'append.business-knowledge-model',
         'append.decision',
         'append.input-data',

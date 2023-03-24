@@ -252,6 +252,9 @@ DrdUpdater.prototype.updateSemanticParent = function(businessObject, parent) {
     containment = 'authorityRequirement';
   } else if (is(businessObject, 'dmn:KnowledgeRequirement')) {
     containment = 'knowledgeRequirement';
+    //TODO SpecializationRequirement updater
+  } else if (is(businessObject, 'dmn:SpecializationRequirement')) {
+    containment = 'specializationRequirement';
   }
 
   if (businessObject.$parent) {

@@ -13,11 +13,9 @@ import {
 import TranslateModule from 'diagram-js/lib/i18n/translate';
 
 import CoreModule from './core';
-import DecisionPropertiesModule from './features/decision-properties';
-import LiteralExpressionPropertiesModule from './features/literal-expression-properties';
-import PoweredByModule from './features/powered-by';
+import PoweredByModule from '../../dmn-js-literal-expression/src/features/powered-by';
 import TextareaModule from './features/textarea';
-import ViewDrdModule from './features/view-drd';
+import ViewDrdModule from '../../dmn-js-literal-expression/src/features/view-drd';
 
 /**
  * @typedef {import('dmn-js-shared/lib/base/View).OpenResult} OpenResult
@@ -220,8 +218,6 @@ export default class Viewer extends BaseViewer {
     return [
       CoreModule,
       TranslateModule,
-      DecisionPropertiesModule,
-      LiteralExpressionPropertiesModule,
       PoweredByModule,
       TextareaModule,
       ViewDrdModule
@@ -230,7 +226,7 @@ export default class Viewer extends BaseViewer {
 
   static _createContainer() {
     return domify(
-      '<div class="dmn-literal-expression-container"></div>'
+      '<div class="dmn-bkm-container"></div>'
     );
   }
 
