@@ -109,6 +109,20 @@ function updateElementReferences(element, oldId, id) {
         }
       });
     },
+    //TODO Spec req change behavior
+    specializationRequirement: () => {
+      element.specializationRequirement.forEach(informationRequirement => {
+        const { requiredDecision, requiredInput } = informationRequirement;
+
+        if (requiredDecision && requiredDecision.href === `#${oldId}`) {
+          requiredDecision.href = `#${id}`;
+        }
+
+        if (requiredInput && requiredInput.href === `#${oldId}`) {
+          requiredInput.href = `#${id}`;
+        }
+      });
+    },
 
     knowledgeRequirement: () => {
       element.knowledgeRequirement.forEach(knowledgeRequirement => {
